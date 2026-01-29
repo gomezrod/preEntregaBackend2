@@ -1,26 +1,11 @@
 import { Router } from "express"
 import cookieParser from 'cookie-parser';
-import session from "express-session";
-import MongoStore from "connect-mongo";
 import passport from 'passport';
 import jwt from "jsonwebtoken";
-
-import { cartDBManager } from "../dao/cartDBManager.js";
 
 export const router=Router()
 
 router.use(cookieParser(process.env.COOKIES_SECRET))
-router.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-    store: MongoStore.create({
-        mongoUrl: process.env.DB_URL,
-        dbName: process.env.DB_NAME,
-        ttl: 60*10,
-        collectionName: "sessions"
-    })
-}))
 
 router.get('/', (req, res) => {
     res.setHeader('Content-Type','application/json');
@@ -57,7 +42,7 @@ router.get('/', (req, res) => {
 
 router.post(
     '/register',
-    passport.authenticate("registro", {failureRedirect: "/api/sessions/error", failureMessage: true}),
+    passport.authenticate("registro", {session: false, failureRedirect: "/api/sessions/error", failureMessage: true}),
     (req, res) => {
         res.setHeader('Content-Type','application/json');
         return res.status(200).json({message: `Registro exitoso`, nuevoUsuario: req.user});
@@ -66,7 +51,7 @@ router.post(
 
 router.post(
     '/login',
-    passport.authenticate("login", {failureRedirect: "/api/sessions/error", failureMessage: true}),
+    passport.authenticate("login", {session: false, failureRedirect: "/api/sessions/error", failureMessage: true}),
     (req, res) => {
         let token = jwt.sign(req.user, process.env.JWT_SECRET, { expiresIn: "1h" })
 
@@ -83,28 +68,18 @@ router.get('/logout', (req,res)=>{
     if(req.signedCookies.currentUser){
         res.clearCookie('currentUser')
     }
-    req.session.destroy(error=>{
-        if(error){
-            console.log(error);
-            return res.status(500).json(
-                {
-                    error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                    detalle:`${error.message}`
-                }
-            )
-        }
-    })
+    
     return res.status(200).redirect('/login?loggedout=1');
 });
 
-router.get('/current', passport.authenticate("current", {session: false, failureRedirect: '/api/sessions/error', failureMessage: true }), (req,res)=>{
+router.get('/current', passport.authenticate("current", {session: false, failureRedirect: '/api/sessions/error' }), (req,res)=>{
     return res.status(200).json(req.user)
 });
 
 router.get("/error", (req, res) => {
     res.setHeader('Content-Type','application/json');
 
-    return res.status(401).json({error: req.session.messages.at(-1)});
+    return res.status(401).json({error: "Error de autorización"});
 })
 
 export default router

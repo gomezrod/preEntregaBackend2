@@ -99,12 +99,4 @@ export const initPassport = () => {
 
         }
     ))
-
-    passport.serializeUser((usuario, done) => {
-        return done(null, usuario._id);
-    });
-    passport.deserializeUser(async (id, done) => {
-        let usuario = await userDBManager.getBy({ _id: id });
-        return done(null, usuario);
-    })
 }
