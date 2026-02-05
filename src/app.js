@@ -6,8 +6,6 @@ import productRouter from './routes/productRouter.routes.js';
 import cartRouter from './routes/cartRouter.routes.js';
 import viewsRouter from './routes/viewsRouter.routes.js';
 import sessionRouter from './routes/sessions.routes.js';
-import usersServiceRouter from './routes/users.service.routes.js';
-import usersRouter from './routes/users.routes.js';
 import __dirname from './utils/utils.js';
 import websocket from './websocket.js';
 import { logger } from "../src/middlewares/logger.js"
@@ -46,8 +44,6 @@ app.use(passport.initialize());
 app.use('/api/products', productRouter);
 app.use('/api/carts', cartRouter);
 app.use('/api/sessions', sessionRouter);
-app.use('/api/users', usersServiceRouter);
-app.use('/users', usersRouter)
 app.use('/', viewsRouter);
 
 const httpServer = app.listen(PORT, () => {

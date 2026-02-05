@@ -42,7 +42,7 @@ router.get('/', (req, res) => {
 
 router.post(
     '/register',
-    passport.authenticate("registro", {session: false, failureRedirect: "/api/sessions/error", failureMessage: true}),
+    passport.authenticate("registro", {session: false, failureRedirect: "/api/sessions/error?type=register"}),
     (req, res) => {
         res.setHeader('Content-Type','application/json');
         return res.status(200).json({message: `Registro exitoso`, nuevoUsuario: req.user});
@@ -51,7 +51,7 @@ router.post(
 
 router.post(
     '/login',
-    passport.authenticate("login", {session: false, failureRedirect: "/api/sessions/error", failureMessage: true}),
+    passport.authenticate("login", {session: false, failureRedirect: "/api/sessions/error?type=login"}),
     (req, res) => {
         let token = jwt.sign(req.user, process.env.JWT_SECRET, { expiresIn: "1h" })
 
@@ -72,14 +72,23 @@ router.get('/logout', (req,res)=>{
     return res.status(200).redirect('/login?loggedout=1');
 });
 
-router.get('/current', passport.authenticate("current", {session: false, failureRedirect: '/api/sessions/error' }), (req,res)=>{
+router.get('/current', passport.authenticate("current", {session: false, failureRedirect: '/api/sessions/error?type=auth' }), (req,res)=>{
     return res.status(200).json(req.user)
 });
 
 router.get("/error", (req, res) => {
+    let {type} = req.query;
     res.setHeader('Content-Type','application/json');
-
-    return res.status(401).json({error: "Error de autorización"});
+    if(type == "auth"){
+        return res.status(401).json({error: "Error de autorización."});
+    } else if(type == "register"){
+        return res.status(400).json({error: "Error al registrarse, revise elementos del body."});
+    } else if(type == "login"){
+         return res.status(400).json({error: "Error al loguearse, revise elementos del body."});
+    } else {
+        return res.status(400).json({error: "Error: Intente nuevamente."})
+    }
+    
 })
 
 export default router
