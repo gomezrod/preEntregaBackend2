@@ -1,10 +1,10 @@
-import { $ } from "../../src/utils/utils.js";
+import { $ } from "./utils.js";
+const createProductForm = $('#createForm')
 
 const socket = io();
 
 socket.on('statusError', data => {
     console.log(data);
-    alert(data);
 });
 
 socket.on('publishProducts', data => {
@@ -25,7 +25,7 @@ socket.on('publishProducts', data => {
     $('.products-box').innerHTML = html;
 });
 
-function createProduct(event) {
+async function createProduct(event) {
     event.preventDefault();
     const newProduct = {
         title: $('#title').value,
@@ -35,10 +35,30 @@ function createProduct(event) {
         stock: $('#stock').value,
         category: $('#category').value
     }
+    
+    const createProductResponse = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newProduct)
+    })
+
+    const createProduct = await createProductResponse.json()
+
+    if(createProduct.status === 'success'){
+        alert('Producto creado correctamente')
+    } else {
+        alert('Error al crear el producto')
+    }
 
     cleanForm();
 
     socket.emit('createProduct', newProduct);
+}
+
+if(createProductForm){
+    createProductForm.addEventListener("submit", createProduct)
 }
 
 function deleteProduct(pid) {

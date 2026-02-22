@@ -1,7 +1,7 @@
 <div class="box">
     <h1>Productos</h1>
     <hr>
-    <div class="products-form">
+    <div class="products-form" id="createForm">
         <h2>Crear Producto</h2>
         <form>
             <label for="title">Título</label>
@@ -22,7 +22,7 @@
             <label for="category">Categoria</label>
             <input name="category" id="category" type="text">
 
-            <button id="button-create" onclick="createProduct(event)">Crear</button>
+            <button id="button-create">Crear</button>
         </form>
     </div>
 
@@ -42,5 +42,5 @@
     </div>
 </div>
 
+<script type="module" src="/js/index.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/index.js"></script>

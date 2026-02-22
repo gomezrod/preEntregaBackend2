@@ -2,7 +2,7 @@ import productModel from "./models/productModel.js";
 
 class productDBManager {
 
-    static async getAllProducts(params) {
+    static async get(params) {
         const paginate = {
             page: params.page ? parseInt(params.page) : 1,
             limit: params.limit ? parseInt(params.limit) : 10,
@@ -27,15 +27,15 @@ class productDBManager {
         return products;
     }
 
-    static async getProductByID(pid) {
-        const product = await productModel.findOne({_id: pid}).lean();
+    static async getBy(filtro) {
+        const product = await productModel.findOne(filtro).lean();
 
-        if (!product) throw new Error(`El producto ${pid} no existe!`);
+        if (!product) throw new Error(`El producto ${filtro} no existe!`);
 
         return product;
     }
 
-    static async createProduct(product) {
+    static async create(product) {
         const {title, description, code, price, stock, category, thumbnails} = product;
 
         if (!title || !description || !code || !price || !stock || !category) {
@@ -45,11 +45,11 @@ class productDBManager {
         return await productModel.create({title, description, code, price, stock, category, thumbnails});  
     }
 
-    static async updateProduct(pid, productUpdate) {
+    static async update(pid, productUpdate) {
         return await productModel.updateOne({_id: pid}, productUpdate);
     }
 
-    static async deleteProduct(pid) {
+    static async delete(pid) {
         const result = await productModel.deleteOne({_id: pid});
 
         if (result.deletedCount === 0) throw new Error(`El producto ${pid} no existe!`);
